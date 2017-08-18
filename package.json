@@ -1,0 +1,19 @@
+{
+  "name": "connect-four_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pagoru/connectfour-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pagoru/connectfour-bot/issues"
+  },
+  "homepage": "https://github.com/pagoru/connectfour-bot#readme"
+}
