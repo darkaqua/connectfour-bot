@@ -1,3 +1,4 @@
 
+global.config = require('./config.json');
 
-console.log("Hello World");
+require('./bot/bot').init();
