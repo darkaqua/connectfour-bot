@@ -279,6 +279,14 @@ class Game {
         this.message.edit(this.buildMessage(winner)).catch(console.error);
     }
 
+    /**
+     * Ends the game.
+     */
+    stop(){
+        this.reactionCollector.stop();
+        this.message.reactions.forEach(reaction => reaction.remove());
+    }
+
 }
 
 
