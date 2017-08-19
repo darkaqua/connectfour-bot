@@ -15,8 +15,10 @@ exports.init = () => {
     http.createServer(app).listen(global.config.web.port, () => {
 
         app.all('*', (req, res) => res.render(
-            path.join(__dirname, 'views/index.pug'),
-            { bot_id: global.config.bot.id })
+            path.join(__dirname, 'views/index.pug'), {
+                bot_id: global.config.bot.id,
+                current_guilds: global.metric_guilds.val()
+            })
         );
 
     });

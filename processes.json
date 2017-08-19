@@ -2,7 +2,7 @@
   "name": "ConnectFourBot",
   "script": "main.js",
   "watch": true,
-  "ignore_watch": [".git", ".idea", "node_modules", "config.json"],
+  "ignore_watch": [".git", ".idea", "node_modules", "config.json", "web/public/css"],
   "watch_options": {
     "followSymlinks": false
   }

@@ -13,7 +13,7 @@
     "url": "git+https://github.com/pagoru/connectfour-bot.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/pagoru/connectfour-bot/issues"
   },
@@ -22,6 +22,7 @@
     "discord.js": "^11.1.0",
     "express": "^4.15.4",
     "less-middleware": "^2.2.1",
+    "pmx": "^1.2.0",
     "pug": "^2.0.0-rc.3"
   }
 }
