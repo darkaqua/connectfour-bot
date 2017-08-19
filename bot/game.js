@@ -283,7 +283,7 @@ class Game {
      * Ends the game.
      */
     stop(){
-        this.message.reactions.clearReactions().catch(console.error);
+        this.message.clearReactions().catch(console.error);
         if(this.reactionCollector)
             this.reactionCollector.stop();
     }
