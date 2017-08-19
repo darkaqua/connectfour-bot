@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
-    "test": "node main.js",
+    "test": "node test.js",
     "restart": "nodemon main.js"
   },
   "repository": {
