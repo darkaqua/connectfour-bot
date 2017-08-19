@@ -16,6 +16,11 @@ a {
   &:link, &:hover, &:visited{
     text-decoration: none;
   }
+  color: @greyple;
+  &:link, &:visited{
+    font-weight: 700;
+    color: @greyple;
+  }
 }
 
 .container{
@@ -111,17 +116,9 @@ a {
 
     }
 
-    .join-us{
+    .join-us, .bugs{
       text-align: center;
-      color: @greyple;
       margin: 10px 0;
-
-      a{
-        &:link, &:visited{
-          font-weight: 700;
-          color: @greyple;
-        }
-      }
     }
 
   }
