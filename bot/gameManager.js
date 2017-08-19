@@ -7,7 +7,13 @@ class GameManager {
     }
 
     startNewGame(message) {
-        this.games.push(new Game(message));
+        const game = new Game(message);
+        this.games.push(game);
+
+        setTimeout(() => {
+            game.stop();
+            this.games.splice(this.games.indexOf(game), 1);
+        }, 1000 * 60 * 15);
     }
 
 }
