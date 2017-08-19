@@ -7,7 +7,8 @@ module.exports = () => {
         afk: false,
         game: {
             name: 'Connect Four',
-            url: null
+            url: null,
+            type: 0
         }
     }).catch(console.error);
 
