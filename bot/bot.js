@@ -10,6 +10,8 @@ exports.init = () => {
         global.bot.on(/(.+)\.js/i.exec(name)[1], require(`./events/${name}`));
     });
 
-    global.bot.login(global.config.bot.token).catch(console.error);
+    global.bot.login(global.config.bot.token)
+        .then( () => global.bot.user.setGame('Connect Four').catch(console.error) )
+        .catch(console.error);
 
 };
