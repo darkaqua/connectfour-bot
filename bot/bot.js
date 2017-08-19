@@ -6,17 +6,10 @@ global.bot = new Discord.Client();
 
 exports.init = () => {
 
-    return new Promise((fulfill, reject) => {
-
-        fs.readdirSync(path.join(__dirname, "events")).forEach((name) =>{
-            global.bot.on(/(.+)\.js/i.exec(name)[1], require(`./events/${name}`));
-        });
-
-        global.bot.login(global.config.bot.token).then(() => {
-            global.bot.user.setGame('Connect Four').catch(reject);
-            fulfill();
-        }).catch(reject);
-
+    fs.readdirSync(path.join(__dirname, "events")).forEach((name) =>{
+        global.bot.on(/(.+)\.js/i.exec(name)[1], require(`./events/${name}`));
     });
+
+    return global.bot.login(global.config.bot.token);
 
 };
