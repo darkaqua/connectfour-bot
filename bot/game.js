@@ -1,14 +1,22 @@
+//@ts-check
 const width = 7;
 const height = 6;
 
 const EMPTY = 0;
 
+const Message = require('discord.js').Message;
+const MessageReaction = require('discord.js').MessageReaction;
+const User = require('discord.js').User;
+
+const numberEmojis = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"];
+const circleEmojis = [":white_circle:", ":red_circle:", ":large_blue_circle:"];
+
 function playerToEmoji(player) {
-    return [":white_circle:", ":red_circle:", ":large_blue_circle:"][player];
+    return circleEmojis[player];
 }
 
 function columnToEmoji(column) {
-    return ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"][column];
+    return numberEmojis[column];
 }
 
 /**
@@ -56,6 +64,10 @@ class GameTable {
         return available;
     }
 
+    /**
+     * Converts the message to a string of emojis.
+     * @return {string} table as string
+     */
     toMessage() {
         return this.fields.map(playerToEmoji).join("").replace(/(:\w+_circle:){7}/g, m => m + "\n");
         //return this.fields.map(v => `:${v}:`).join("").replace(/(:\d:){7}/g, m => m + "\n");
@@ -66,26 +78,88 @@ class GameTable {
 /**
  * @class
  * @property { GameTable } table
+ * @property { Message } message
  */
 class Game {
 
     /**
-     * @param { Object } message
+     * @param { Message } message
      */
     constructor(message) {
         this.table = new GameTable();
         this.players = Array.from(message.mentions.users.values());
-        this.currentTurn = 1;
+        this.currentTurn = Math.round(Math.random() * 2);
+        /** @this Game */
         message.channel.send(this.buildMessage()).then(m => {
-            this.message = m;
+            /** @type { Message } */
+            this.message = m.constructor === Array ? m[0] : m;
+            this.reactionCollector = this.message.createReactionCollector(
+                /** 
+                 * Emoji filter
+                 * @param { MessageReaction } reaction
+                 * @param { User } user
+                 */
+                (reaction, user) => {
+                    const validEmoji = numberEmojis.indexOf(reaction.emoji.toString()) >= 0;
+                    const validUser =  user.id === this.player(this.currentTurn).id;
+                    return validEmoji && validUser;
+                }
+            );
+            this.reactionCollector.on('collect', this.onReaction);
             this.react();
         });
+        //Bind `this` to onReaction function
+        this.onReaction = this.onReaction.bind(this);
     }
 
+    /**
+     * DO NOT CALL
+     * Event listener for reactions.
+     * @param { MessageReaction } reaction
+     */
+    onReaction(reaction) {
+        const num = numberEmojis.indexOf(reaction.emoji.toString());
+        if(this.table.columnAvailable(num)) {
+            this.table.drop(num, this.currentTurn);
+        }
+        reaction.remove(this.player(this.currentTurn)).catch(console.error);
+        this.updateReactions();
+        this.nextTurn();
+    }
+
+    /**
+     * Removes number reactions for the columns that have no more space.
+     */
+    updateReactions() {
+        this.message.reactions.filter(reaction => {
+            return !this.table.columnAvailable(numberEmojis.indexOf(reaction.emoji.toString()))
+        }).forEach(reaction => reaction.remove());
+    }
+
+    /**
+     * Swaps the player and applies changes.
+     */
+    nextTurn() {
+        this.currentTurn = this.currentTurn === 1 ? 2 : 1;
+        this.apply();
+    }
+
+    /**
+     * Reacts with the passed number's emoji (adding one).
+     * Recursive to avoid disordered reactions.
+     * @param {number} [num] 
+     */
     react(num) {
         num = num || 0;
         if(num > 6) return;
-        this.message.react(columnToEmoji(num)).then(_ => this.react(num + 1)).catch(e => console.error(`${num}: ${e.message}`));
+        //If column has no space, skip it.
+        if(!this.table.columnAvailable(num)) this.react(num + 1);
+        this.message.react(columnToEmoji(num))
+            .then(_ => {
+                //Recursive call
+                this.react(num + 1)
+            })
+            .catch(e => console.error(`Reaction error ${num}: ${e.message}`));
     }
 
     /**
@@ -109,8 +183,11 @@ class Game {
         return this.players[num - 1];
     }
 
+    /**
+     * Edits the message with the updated table.
+     */
     apply() {
-
+        this.message.edit(this.buildMessage()).catch(console.error);
     }
 
 }
