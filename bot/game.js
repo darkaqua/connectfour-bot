@@ -7,6 +7,10 @@ function playerToEmoji(player) {
     return [":white_circle:", ":red_circle:", ":large_blue_circle:"][player];
 }
 
+function columnToEmoji(column) {
+    return ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"][column];
+}
+
 /**
  * @class
  */
@@ -73,16 +77,15 @@ class Game {
         this.players = Array.from(message.mentions.users.values());
         this.currentTurn = 1;
         message.channel.send(this.buildMessage()).then(m => {
-            this.table.availableColumns().map(this.columnToEmoji).forEach(e => {
-                console.log("Reacting with " + e);
-                m.react(e).catch(console.error);
-            });
             this.message = m;
+            this.react();
         });
     }
 
-    columnToEmoji(column) {
-        return [":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:"][column];
+    react(num) {
+        num = num || 0;
+        if(num > 7) return;
+        this.message.react(columnToEmoji(num)).then(_ => this.react(num + 1)).catch(e => console.error(`${num}: ${e.message}`));
     }
 
     /**
@@ -93,7 +96,7 @@ class Game {
         return [
             `${playerToEmoji(1)} ${this.player(1)} - ${this.player(2)} ${playerToEmoji(2)}\n\n`,
             this.table.toMessage(),
-            [0, 1, 2, 3, 4, 5, 6].map(this.columnToEmoji).join("") + "\n\n",
+            [0, 1, 2, 3, 4, 5, 6].map(columnToEmoji).join("") + "\n\n",
             `${this.player(this.currentTurn)} it's your turn!`
         ].join("");
     }
