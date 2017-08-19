@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/pagoru/connectfour-bot#readme",
   "dependencies": {
-    "discord.js": "^11.1.0"
+    "discord.js": "^11.1.0",
+    "express": "^4.15.4",
+    "less-middleware": "^2.2.1",
+    "pug": "^2.0.0-rc.3"
   }
 }
