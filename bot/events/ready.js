@@ -2,7 +2,13 @@
 module.exports = () => {
 
     //Not working anymore(?)
-    global.bot.user.setGame('Connect Four')
-        .catch(console.error);
+    global.bot.user.setPresence({
+        status: 'online',
+        afk: false,
+        game: {
+            name: 'Connect Four',
+            url: null
+        }
+    }).catch(console.error);
 
 };
