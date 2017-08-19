@@ -88,7 +88,7 @@ class Game {
     constructor(message) {
         this.table = new GameTable();
         this.players = Array.from([message.author, message.mentions.users.first()]);
-        this.currentTurn = Math.round(Math.random() * 2);
+        this.currentTurn = Math.round(Math.random()) + 1;
         /** @this Game */
         message.channel.send(this.buildMessage()).then(m => {
             /** @type { Message } */
