@@ -208,7 +208,7 @@ class Game {
         reaction.remove(this.player(this.currentTurn)).catch(console.error);
         const winner = this.table.winner();
         if(winner) {
-            this.message.clearReactions();
+            this.stop();
             this.apply(winner);
         } else {
             this.updateReactions();
@@ -283,8 +283,9 @@ class Game {
      * Ends the game.
      */
     stop(){
-        this.reactionCollector.stop();
-        this.message.reactions.forEach(reaction => reaction.remove());
+        this.message.reactions.clearReactions().catch(console.error);
+        if(this.reactionCollector)
+            this.reactionCollector.stop();
     }
 
 }
