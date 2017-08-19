@@ -100,9 +100,15 @@ class Game {
                  * @param { User } user
                  */
                 (reaction, user) => {
+                    //@ts-ignore
+                    if(user.id === global.bot.user.id)
+                        return false;
                     const validEmoji = numberEmojis.indexOf(reaction.emoji.toString()) >= 0;
-                    const validUser =  user.id === this.player(this.currentTurn).id;
-                    return validEmoji && validUser;
+                    const validUser = user.id === this.player(this.currentTurn).id;
+                    if(validEmoji && validUser)
+                        return true;
+                    reaction.remove(user);
+                    return false;
                 }
             );
             this.reactionCollector.on('collect', this.onReaction);
