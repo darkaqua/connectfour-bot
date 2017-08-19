@@ -100,7 +100,7 @@ class GameTable {
 
         //Diagonals        
         //Topleft -> bottomright
-        //Starting at (1, 0), (2, 0) and (3, 0)
+        //Starting at (1, 0), (2, 0) and (3, 0) (green)
         for(i = 1; i <= width - 4; i++) {
             for(x = i, y = 0; x < width; x++, y++) {
                 check(y * width + x);
@@ -109,7 +109,7 @@ class GameTable {
             count = 0;
         }
 
-        //Starting at (0, 0), (0, 1) and (0, 2)
+        //Starting at (0, 0), (0, 1) and (0, 2) (black)
         for(i = 0; i <= height - 4; i++) {
             for(x = 0, y = i; y < height; x++, y++) {
                 check(y * width + x);
@@ -119,18 +119,18 @@ class GameTable {
         }
 
         //Topright -> bottomleft
-        //Starting at (w-2, 0), (w-3, 0) and (w-4, 0)
-        for(i = 0; i <= height - 4; i++) {
-            for(x = 0, y = i; y < height; x++, y++) {
+        //Starting at (w-2, 0), (w-3, 0) and (w-4, 0) (green)
+        for(i = width - 2; i >= 4; i--) {
+            for(x = i, y = 0; x >= 0; x--, y++) {
                 check(y * width + x);
                 if(count >= 4) return player;
             }
             count = 0;
         }
 
-        //Starting at (w-1, 0), (w-1, 1) and (w-1, 2)
-        for(i = width - 2; i >= 4; i--) {
-            for(x = i, y = 0; x >= 0; x--, y++) {
+        //Starting at (w-1, 0), (w-1, 1) and (w-1, 2) (black)
+        for(i = 0; i <= height - 4; i++) {
+            for(x = width - 1, y = i; y < height; x--, y++) {
                 check(y * width + x);
                 if(count >= 4) return player;
             }
