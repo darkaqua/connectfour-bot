@@ -84,7 +84,7 @@ class Game {
 
     react(num) {
         num = num || 0;
-        if(num > 7) return;
+        if(num > 6) return;
         this.message.react(columnToEmoji(num)).then(_ => this.react(num + 1)).catch(e => console.error(`${num}: ${e.message}`));
     }
 
