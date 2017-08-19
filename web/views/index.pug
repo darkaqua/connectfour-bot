@@ -1,0 +1,29 @@
+html
+    head
+        title='ConnectFourBot'
+        link(rel="shortcut icon" href="./favicon.ico" type="image/x-icon")
+        link(rel="icon" href="./favicon.ico" type="image/x-icon")
+
+        link(rel='stylesheet' href='/css/style.css')
+        meta(name="viewport" content="width=device-width, initial-scale=0.7")
+    body
+        div.container
+            div.bot
+                div.avatar
+                    img(src='/images/bot_avatar.png')
+                div.name
+                    h2='ConnectFourBot'
+                    label='Currently playing in ' + current_guilds + ' discord servers'
+                div.example
+                    img(src='/images/example.gif')
+                div.button-container
+                    a.button(href="https://discordapp.com/oauth2/authorize?client_id=" + bot_id + "&scope=bot" target='_blank')
+                        label='add to your discord server'
+                div.join-us
+                    a='Or join our discord server '
+                    a(href='https://darkaqua.net' target='_blank')='darkaqua'
+                    a=' (spanish only).'
+                div.bugs
+                    a='If you find a bug, report it on '
+                    a(href='https://github.com/darkaqua/connectfour-bot/issues')='github'
+                    a='.'
