@@ -13,7 +13,11 @@ html
                     img(src='/images/bot_avatar.png')
                 div.name
                     h2='ConnectFourBot'
-                    label='Currently playing ' + current_games + ' games in ' + current_guilds + ' discord servers'
+                    a='Currently playing '
+                    a#games=current_games
+                    a=' games in '
+                    a#guilds=current_guilds
+                    a=' discord servers'
                 div.example
                     img(src='/images/example.gif')
                 div.button-container
@@ -27,3 +31,7 @@ html
                     a='If you find a bug, report it on '
                     a(href='https://github.com/darkaqua/connectfour-bot/issues' target='_blank')='github'
                     a='.'
+        footer
+            script(src='/js/jquery-3.2.1.min.js')
+            script(src='/js/jquery-ui.min.js')
+            script(src='/js/scripts.js')
