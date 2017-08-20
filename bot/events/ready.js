@@ -6,7 +6,7 @@ module.exports = () => {
         status: 'online',
         afk: false,
         game: {
-            name: 'Connect Four',
+            name: 'http://connectfour.darkaqua.net/',
             url: null,
             type: 0
         }
