@@ -246,12 +246,12 @@ class Game {
             this.apply(`Game Over! It's a tie, nobody wins.`);
         } else {
             //Nothing special, next turn
-            this.updateReactions();
             this.nextTurn();
         }
     }
 
     /**
+     * @deprecated
      * Removes number reactions for the columns that have no more space.
      */
     updateReactions() {
