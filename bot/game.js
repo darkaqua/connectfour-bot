@@ -199,6 +199,7 @@ class Game {
      */
     constructor(message) {
         this.table = new GameTable();
+        this.lastThrow = -1;
         this.players = Array.from([message.author, message.mentions.users.first()]);
         this.currentTurn = Math.round(Math.random()) + 1;
         /** @this Game */
@@ -245,12 +246,11 @@ class Game {
         const num = numberEmojis.indexOf(reaction.emoji.toString());
         //Remove the reaction the user just added.
         reaction.remove(this.player(this.currentTurn)).catch(console.error);
-        if(this.table.columnAvailable(num)) {
-            this.table.drop(num, this.currentTurn);
-        } else {
-            //That column is full, you can't drop a chip there.
+        //That column is full, you can't drop a chip there.
+        if(!this.table.columnAvailable(num))
             return;
-        }
+        this.table.drop(num, this.currentTurn);
+        this.lastThrow = num;
         reaction.remove(this.player(this.currentTurn)).catch(e => {
             if(e.code === 50013 && !this.permissionsAlerted) {
                 this.permissionsAlerted = true;
@@ -313,10 +313,12 @@ class Game {
      * @returns {string} the message
      */
     buildMessage(message) {
+        let numbers = [0, 1, 2, 3, 4, 5, 6].map(columnToEmoji);
+        if(this.lastThrow >= 0) numbers.splice(this.lastThrow, 1, ":arrow_up:");
         return [
             `${playerToEmoji(1)} ${this.player(1)} - ${this.player(2)} ${playerToEmoji(2)}\n\n`,
             this.table.toMessage(),
-            [0, 1, 2, 3, 4, 5, 6].map(columnToEmoji).join("") + "\n\n",
+            numbers.join("") + "\n\n",
             message || `${this.player(this.currentTurn)} it's your turn!`
         ].join("");
     }
