@@ -229,16 +229,12 @@ class Game {
             //That column is full, you can't drop a chip there.
             return;
         }
-<<<<<<< HEAD
-        
-=======
         reaction.remove(this.player(this.currentTurn)).catch(e => {
             if(e.code === 50013 && !this.permissionsAlerted) {
                 this.permissionsAlerted = true;
                 this.message.channel.send("My powers are weak, I'm going to need the `Manage Messages` permission.");
             }
         });
->>>>>>> develop
         const winner = this.table.winner();
         if(winner) {
             //There is a winner
