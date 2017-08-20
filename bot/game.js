@@ -198,7 +198,6 @@ class Game {
      * @param { Message } message
      */
     constructor(message) {
-        global.metrics.games.inc();
         this.table = new GameTable();
         this.lastThrow = -1;
         this.players = Array.from([message.author, message.mentions.users.first()]);
@@ -343,10 +342,12 @@ class Game {
      * Ends the game.
      */
     stop(){
+        if(this.stopped) return;
         global.metrics.games.dec();
         this.message.clearReactions().catch(console.error);
         if(this.reactionCollector)
             this.reactionCollector.stop();
+        this.stopped = true;
     }
 
 }
