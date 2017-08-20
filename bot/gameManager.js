@@ -9,6 +9,7 @@ class GameManager {
     startNewGame(message) {
         const game = new Game(message);
         this.games.push(game);
+        global.metrics.games.inc();
 
         setTimeout(() => {
             game.stop();
