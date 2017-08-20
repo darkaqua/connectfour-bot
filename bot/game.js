@@ -176,6 +176,7 @@ class Game {
      * @param { Message } message
      */
     constructor(message) {
+        global.metrics.games.inc();
         this.table = new GameTable();
         this.players = Array.from([message.author, message.mentions.users.first()]);
         this.currentTurn = Math.round(Math.random()) + 1;
@@ -318,6 +319,7 @@ class Game {
      * Ends the game.
      */
     stop(){
+        global.metrics.games.dec();
         this.message.clearReactions().catch(console.error);
         if(this.reactionCollector)
             this.reactionCollector.stop();

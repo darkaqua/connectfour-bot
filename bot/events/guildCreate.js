@@ -1,6 +1,6 @@
 
 module.exports = () => {
 
-    global.metric_guilds.inc();
+    global.metrics.guilds.inc();
 
 };

@@ -3,11 +3,19 @@ const probe = require('pmx').probe();
 
 module.exports.init = () => {
 
-    global.metric_guilds = probe.counter({
-        name: 'guilds'
-    });
+    global.metrics = {
+
+        guilds: probe.counter({
+            name: 'guilds'
+        }),
+
+        games: probe.counter({
+            name: 'games'
+        })
+
+    };
 
     for(let i = 0; i < global.bot.guilds.size; i++)
-        metric_guilds.inc();
+        global.metrics.guilds.inc();
 
 };

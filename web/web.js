@@ -17,7 +17,8 @@ exports.init = () => {
         app.all('*', (req, res) => res.render(
             path.join(__dirname, 'views/index.pug'), {
                 bot_id: global.config.bot.id,
-                current_guilds: global.metric_guilds.val()
+                current_guilds: global.metrics.guilds.val(),
+                current_games: global.metrics.games.val()
             })
         );
 
