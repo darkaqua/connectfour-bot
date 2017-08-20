@@ -3,13 +3,14 @@ const width = 7;
 const height = 6;
 
 const EMPTY = 0;
+const WIN = 3;
 
 const Message = require('discord.js').Message;
 const MessageReaction = require('discord.js').MessageReaction;
 const User = require('discord.js').User;
 
 const numberEmojis = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"];
-const circleEmojis = [":white_circle:", ":red_circle:", ":large_blue_circle:"];
+const circleEmojis = [":white_circle:", ":red_circle:", ":large_blue_circle:", ":green_heart:"];
 
 function playerToEmoji(player) {
     return circleEmojis[player];
@@ -91,13 +92,24 @@ class GameTable {
                 player = this.fields[n];
                 count = 1;
             }
+            return count >= 4;
+        }
+
+        const mark = (info) => {
+            for(let i = 0; i < 4; i++) {
+                let x = info.x + info.xstep * i;
+                let y = info.y + info.ystep * i;
+                this.fields[y * width + x] = WIN;
+            }
         }
 
         //Horizontal
         for(y = 0; y < height; y++ ){
             for(x = 0; x < width; x++) {
-                check(y * width + x);
-                if(count >= 4) return player;
+                if(check(y * width + x)) {
+                    mark({ x: x, y: y, xstep: -1, ystep: 0 })
+                    return player;
+                }
             }
             count = 0;
         }
@@ -105,8 +117,10 @@ class GameTable {
         //Vertical
         for(x = 0; x < width; x++) {
             for(y = 0; y < height; y++ ){
-                check(y * width + x);
-                if(count >= 4) return player;
+                if(check(y * width + x)) {
+                    mark({ x: x, y: y, xstep: 0, ystep: -1 });
+                    return player;
+                }
             }
             count = 0;
         }
@@ -116,8 +130,10 @@ class GameTable {
         //Starting at (1, 0), (2, 0) and (3, 0) (green)
         for(i = 1; i <= width - 4; i++) {
             for(x = i, y = 0; x < width; x++, y++) {
-                check(y * width + x);
-                if(count >= 4) return player;
+                if(check(y * width + x)) {
+                    mark({ x: x, y: y, xstep: -1, ystep: -1 });
+                    return player;
+                }
             }
             count = 0;
         }
@@ -125,18 +141,22 @@ class GameTable {
         //Starting at (0, 0), (0, 1) and (0, 2) (black)
         for(i = 0; i <= height - 4; i++) {
             for(x = 0, y = i; y < height; x++, y++) {
-                check(y * width + x);
-                if(count >= 4) return player;
+                if(check(y * width + x)) {
+                    mark({ x: x, y: y, xstep: -1, ystep: -1 });
+                    return player;
+                }
             }
             count = 0;
         }
 
         //Topright -> bottomleft
         //Starting at (w-2, 0), (w-3, 0) and (w-4, 0) (green)
-        for(i = width - 2; i >= 4; i--) {
+        for(i = width - 2; i > 2; i--) {
             for(x = i, y = 0; x >= 0; x--, y++) {
-                check(y * width + x);
-                if(count >= 4) return player;
+                if(check(y * width + x)) {
+                    mark({ x: x, y: y, xstep: 1, ystep: -1 });
+                    return player;
+                }
             }
             count = 0;
         }
@@ -144,8 +164,10 @@ class GameTable {
         //Starting at (w-1, 0), (w-1, 1) and (w-1, 2) (black)
         for(i = 0; i <= height - 4; i++) {
             for(x = width - 1, y = i; y < height; x--, y++) {
-                check(y * width + x);
-                if(count >= 4) return player;
+                if(check(y * width + x)) {
+                    mark({ x: x, y: y, xstep: 1, ystep: -1 });
+                    return player;
+                }
             }
             count = 0;
         }
@@ -159,7 +181,7 @@ class GameTable {
      * @return {string} table as string
      */
     toMessage() {
-        return this.fields.map(playerToEmoji).join("").replace(/(:\w+_circle:){7}/g, m => m + "\n");
+        return this.fields.map(playerToEmoji).join("").replace(/(:\w+:){7}/g, m => m + "\n");
         //return this.fields.map(v => `:${v}:`).join("").replace(/(:\d:){7}/g, m => m + "\n");
     }
 
