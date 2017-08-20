@@ -184,7 +184,12 @@ class Game {
                     const validUser = user.id === this.player(this.currentTurn).id;
                     if(validEmoji && validUser)
                         return true;
-                    reaction.remove(user);
+                    reaction.remove(user).catch(e => {
+                        if(e.code === 50013 && !this.permissionsAlerted) {
+                            this.permissionsAlerted = true;
+                            this.message.channel.send("My powers are weak, I'm going to need the `Manage Messages` permission.");
+                        }
+                    });
                     return false;
                 }
             );
@@ -205,7 +210,12 @@ class Game {
         if(this.table.columnAvailable(num)) {
             this.table.drop(num, this.currentTurn);
         }
-        reaction.remove(this.player(this.currentTurn)).catch(console.error);
+        reaction.remove(this.player(this.currentTurn)).catch(e => {
+            if(e.code === 50013 && !this.permissionsAlerted) {
+                this.permissionsAlerted = true;
+                this.message.channel.send("My powers are weak, I'm going to need the `Manage Messages` permission.");
+            }
+        });
         const winner = this.table.winner();
         if(winner) {
             this.stop();
