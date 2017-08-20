@@ -64,6 +64,19 @@ class GameTable {
         return available;
     }
 
+    /**
+     * Returns if the table is full of chips.
+     * @return {boolean} table is full
+     */
+    isFull() {
+        /* Just check top line because
+            there is a thing called gravity. */
+        for(let i = 0; i < width; i++)
+            if(this.fields[i] === EMPTY)
+                return false;
+        return true;
+    }
+
     winner() {
         
         let i, x, y;
@@ -206,9 +219,15 @@ class Game {
      * @param { MessageReaction } reaction
      */
     onReaction(reaction) {
+        //Column user selected
         const num = numberEmojis.indexOf(reaction.emoji.toString());
+        //Remove the reaction the user just added.
+        reaction.remove(this.player(this.currentTurn)).catch(console.error);
         if(this.table.columnAvailable(num)) {
             this.table.drop(num, this.currentTurn);
+        } else {
+            //That column is full, you can't drop a chip there.
+            return;
         }
         reaction.remove(this.player(this.currentTurn)).catch(e => {
             if(e.code === 50013 && !this.permissionsAlerted) {
@@ -218,15 +237,21 @@ class Game {
         });
         const winner = this.table.winner();
         if(winner) {
+            //There is a winner
             this.stop();
-            this.apply(winner);
+            this.apply(`Game Over! ${this.player(winner)} won!`);
+        } else if(this.table.isFull()) {
+            //Table is full but no winner, it's a tie
+            this.stop();
+            this.apply(`Game Over! It's a tie, nobody wins.`);
         } else {
-            this.updateReactions();
+            //Nothing special, next turn
             this.nextTurn();
         }
     }
 
     /**
+     * @deprecated
      * Removes number reactions for the columns that have no more space.
      */
     updateReactions() {
@@ -265,12 +290,12 @@ class Game {
      * Creates the message from the stored data.
      * @returns {string} the message
      */
-    buildMessage(winner) {
+    buildMessage(message) {
         return [
             `${playerToEmoji(1)} ${this.player(1)} - ${this.player(2)} ${playerToEmoji(2)}\n\n`,
             this.table.toMessage(),
             [0, 1, 2, 3, 4, 5, 6].map(columnToEmoji).join("") + "\n\n",
-            winner ? `Game Over! ${this.player(winner)} won!` : `${this.player(this.currentTurn)} it's your turn!`
+            message || `${this.player(this.currentTurn)} it's your turn!`
         ].join("");
     }
 
@@ -285,8 +310,8 @@ class Game {
     /**
      * Edits the message with the updated table.
      */
-    apply(winner) {
-        this.message.edit(this.buildMessage(winner)).catch(console.error);
+    apply(message) {
+        this.message.edit(this.buildMessage(message)).catch(console.error);
     }
 
     /**
