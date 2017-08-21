@@ -9,6 +9,7 @@ const Message = require('discord.js').Message;
 const MessageReaction = require('discord.js').MessageReaction;
 const User = require('discord.js').User;
 
+const inviteEmojis = ['✅', '❎'];
 const numberEmojis = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣"];
 const circleEmojis = [":white_circle:", ":red_circle:", ":large_blue_circle:", ":green_heart:"];
 
@@ -18,6 +19,27 @@ function playerToEmoji(player) {
 
 function columnToEmoji(column) {
     return numberEmojis[column];
+}
+
+function reactionCatchError(e) {
+    if(e.code === 50013 && !this.permissionsAlerted) {
+        this.permissionsAlerted = true;
+        this.message.channel.send("My powers are weak, I'm going to need the `Manage Messages` permission.");
+    }
+}
+
+
+function validateUserReactionCollector(reaction, user, emoji_list, player_id) {
+    //@ts-ignore
+    if(user.id === global.bot.user.id)
+        return false;
+
+    const validEmoji = emoji_list.indexOf(reaction.emoji.toString()) >= 0;
+    const validUser = user.id === player_id;
+    if(validEmoji && validUser)
+        return true;
+    reaction.remove(user).catch(reactionCatchError);
+    return false;
 }
 
 /**
@@ -201,47 +223,69 @@ class Game {
         this.table = new GameTable();
         this.lastThrow = -1;
         this.players = Array.from([message.author, message.mentions.users.first()]);
-        this.currentTurn = Math.round(Math.random()) + 1;
-        /** @this Game */
-        message.channel.send(this.buildMessage()).then(m => {
+
+        this.invite(message);
+    }
+
+    /**
+     * Makes the invitation to the requested user.
+     */
+    invite(message){
+        message.channel.send(this.buildInvitationMessage()).then(m => {
             /** @type { Message } */
             this.message = m.constructor === Array ? m[0] : m;
-            this.reactionCollector = this.message.createReactionCollector(
-                /** 
-                 * Emoji filter
-                 * @param { MessageReaction } reaction
-                 * @param { User } user
-                 */
-                (reaction, user) => {
-                    //@ts-ignore
-                    if(user.id === global.bot.user.id)
-                        return false;
-                    const validEmoji = numberEmojis.indexOf(reaction.emoji.toString()) >= 0;
-                    const validUser = user.id === this.player(this.currentTurn).id;
-                    if(validEmoji && validUser)
-                        return true;
-                    reaction.remove(user).catch(e => {
-                        if(e.code === 50013 && !this.permissionsAlerted) {
-                            this.permissionsAlerted = true;
-                            this.message.channel.send("My powers are weak, I'm going to need the `Manage Messages` permission.");
-                        }
-                    });
-                    return false;
-                }
-            );
-            this.reactionCollector.on('collect', this.onReaction);
-            this.react();
+            this.reactionCollector = this.message.createReactionCollector((reaction, user) => {
+                    return validateUserReactionCollector(reaction, user, inviteEmojis, this.player(2).id);
+                });
+            this.reactionCollector.on('collect', this.onInviteReaction);
+            this.reactInvitation();
         });
-        //Bind `this` to onReaction function
-        this.onReaction = this.onReaction.bind(this);
+        //Bind `this` to onInviteReaction function
+        this.onInviteReaction = this.onInviteReaction.bind(this);
+    }
+
+    /**
+     * Starts the game.
+     */
+    start(){
+        this.started = true;
+        global.metrics.games.inc();
+        this.currentTurn = Math.round(Math.random()) + 1;
+        /** @this Game */
+        this.message.edit(this.buildMessage()).then(_ => {
+            this.reactionCollector = this.message.createReactionCollector((reaction, user) => {
+                return validateUserReactionCollector(reaction, user, numberEmojis, this.player(this.currentTurn).id);
+            });
+            this.reactionCollector.on('collect', this.onGameReaction);
+            this.reactNumbers();
+        });
+        //Bind `this` to onGameReaction function
+        this.onGameReaction = this.onGameReaction.bind(this);
     }
 
     /**
      * DO NOT CALL
-     * Event listener for reactions.
+     * Event listener for invite reactions.
      * @param { MessageReaction } reaction
      */
-    onReaction(reaction) {
+    onInviteReaction(reaction) {
+        //Column user selected
+        const num = inviteEmojis.indexOf(reaction.emoji.toString());
+
+        if(num === 0){
+            this.message.clearReactions().catch(console.error);
+            this.start();
+            return;
+        }
+        this.stop();
+    }
+
+    /**
+     * DO NOT CALL
+     * Event listener for game reactions.
+     * @param { MessageReaction } reaction
+     */
+    onGameReaction(reaction) {
         //Column user selected
         const num = numberEmojis.indexOf(reaction.emoji.toString());
         //Remove the reaction the user just added.
@@ -291,21 +335,34 @@ class Game {
     }
 
     /**
+     * Reacts with the invitation emojis.
+     */
+    reactInvitation(){
+        this.message.react(inviteEmojis[0]).then(_ =>
+            this.message.react(inviteEmojis[1])
+                .catch(console.error)
+        ).catch(console.error);
+    }
+    /**
      * Reacts with the passed number's emoji (adding one).
      * Recursive to avoid disordered reactions.
      * @param {number} [num] 
      */
-    react(num) {
+    reactNumbers(num) {
         num = num || 0;
         if(num > 6) return;
         //If column has no space, skip it.
-        if(!this.table.columnAvailable(num)) this.react(num + 1);
+        if(!this.table.columnAvailable(num)) this.reactNumbers(num + 1);
         this.message.react(columnToEmoji(num))
             .then(_ => {
                 //Recursive call
-                this.react(num + 1)
+                this.reactNumbers(num + 1)
             })
             .catch(e => console.error(`Reaction error ${num}: ${e.message}`));
+    }
+
+    buildInvitationMessage(){
+        return `${this.player(1)} wants to play with you ${this.player(2)}, you accept the challenge?`;
     }
 
     /**
@@ -343,8 +400,12 @@ class Game {
      */
     stop(){
         if(this.stopped) return;
-        global.metrics.games.dec();
-        this.message.clearReactions().catch(console.error);
+        this.message.clearReactions().catch(_ => _);
+        if(this.started){
+            global.metrics.games.dec();
+        } else {
+            this.message.delete(0).catch(console.error);
+        }
         if(this.reactionCollector)
             this.reactionCollector.stop();
         this.stopped = true;
