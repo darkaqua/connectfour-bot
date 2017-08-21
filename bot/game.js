@@ -362,7 +362,7 @@ class Game {
     }
 
     buildInvitationMessage(){
-        return `${this.player(1)} wants to play with you ${this.player(2)}, you accept the challenge?`;
+        return `${this.player(1)} wants to play with you ${this.player(2)}, do you accept the challenge?`;
     }
 
     /**
