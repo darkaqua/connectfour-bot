@@ -15,6 +15,7 @@ module.exports = (message) => {
         } else {
             manager.startNewGame(message);
         }
+        message.delete(200).catch(console.error);
     }
 
 };
