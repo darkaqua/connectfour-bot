@@ -238,7 +238,7 @@ class Game {
                     return validateUserReactionCollector(reaction, user, inviteEmojis, this.player(2).id);
                 });
             this.reactionCollector.on('collect', this.onInviteReaction);
-            this.react_invitation();
+            this.reactInvitation();
         });
         //Bind `this` to onInviteReaction function
         this.onInviteReaction = this.onInviteReaction.bind(this);
@@ -257,7 +257,7 @@ class Game {
                 return validateUserReactionCollector(reaction, user, numberEmojis, this.player(this.currentTurn).id);
             });
             this.reactionCollector.on('collect', this.onGameReaction);
-            this.react_numbers();
+            this.reactNumbers();
         });
         //Bind `this` to onGameReaction function
         this.onGameReaction = this.onGameReaction.bind(this);
@@ -337,7 +337,7 @@ class Game {
     /**
      * Reacts with the invitation emojis.
      */
-    react_invitation(){
+    reactInvitation(){
         this.message.react(inviteEmojis[0]).then(_ =>
             this.message.react(inviteEmojis[1])
                 .catch(console.error)
@@ -348,15 +348,15 @@ class Game {
      * Recursive to avoid disordered reactions.
      * @param {number} [num] 
      */
-    react_numbers(num) {
+    reactNumbers(num) {
         num = num || 0;
         if(num > 6) return;
         //If column has no space, skip it.
-        if(!this.table.columnAvailable(num)) this.react_numbers(num + 1);
+        if(!this.table.columnAvailable(num)) this.reactNumbers(num + 1);
         this.message.react(columnToEmoji(num))
             .then(_ => {
                 //Recursive call
-                this.react_numbers(num + 1)
+                this.reactNumbers(num + 1)
             })
             .catch(e => console.error(`Reaction error ${num}: ${e.message}`));
     }
