@@ -1,4 +1,6 @@
 //@ts-check
+const DEBUG_MODE = false;
+
 const width = 7;
 const height = 6;
 
@@ -234,6 +236,10 @@ class Game {
         message.channel.send(this.buildInvitationMessage()).then(m => {
             /** @type { Message } */
             this.message = m.constructor === Array ? m[0] : m;
+            if(DEBUG_MODE){
+                this.start();
+                return;
+            }
             this.reactionCollector = this.message.createReactionCollector((reaction, user) => {
                     return validateUserReactionCollector(reaction, user, inviteEmojis, this.player(2).id);
                 });
