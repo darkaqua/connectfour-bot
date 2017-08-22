@@ -1,6 +1,6 @@
 {
   "name": "connectfour-bot",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -19,10 +19,6 @@
   },
   "homepage": "https://github.com/pagoru/connectfour-bot#readme",
   "dependencies": {
-    "discord.js": "^11.1.0",
-    "express": "^4.15.4",
-    "less-middleware": "^2.2.1",
-    "pmx": "^1.2.0",
-    "pug": "^2.0.0-rc.3"
+    "discord-games": "latest"
   }
 }
